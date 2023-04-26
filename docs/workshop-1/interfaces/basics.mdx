@@ -31,4 +31,15 @@ public interface IDatabaseService
 }
 ```
 
-It contains the bare minimum for having a functional app and should be implemented in our `DatabaseService` which will be created later on.
+It contains the bare minimum for having a functional app and should be implemented in our `DatabaseService` which you should create under `Services` resulting in this:
+
+```cs title="./Services/DatabaseService.cs"
+namespace BlazorApp.Services;
+
+using BlazorApp.Models;
+
+public class DatabaseService : IDatabaseService
+{
+
+}
+```

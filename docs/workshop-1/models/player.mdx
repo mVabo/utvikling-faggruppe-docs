@@ -1,0 +1,39 @@
+---
+sidebar_position: 1
+---
+
+# Player
+
+`./Models/Player.cs`
+
+The player class should define all the properties a player can have and contain a constructor
+
+## Basics
+
+In this workshop you need to get creative and a good way is to add your own properties, but here is an example from our template
+
+```cs title="./Models/Player.cs"
+namespace BlazorApp.Models;
+
+public class Player
+{
+  public int ID { get; set; }
+
+  public String? Name { get; set; }
+
+  public int Balance { get; set; }
+
+  public String? HomePlanet { get; set; }
+
+  public DateTime Created { get; set; }
+
+  public Player()
+  {
+    ID = 0;
+    Name = "";
+    Balance = 2000;
+    HomePlanet = "";
+    Created = DateTime.MinValue;
+  }
+}
+```
