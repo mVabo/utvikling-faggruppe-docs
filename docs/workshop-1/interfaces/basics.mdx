@@ -15,25 +15,6 @@ Go ahead and create the file `IDatabaseService.cs` inside `./Interfaces`.
 When you're done you can copy-paste the following into your file:
 
 ```cs title="./Interfaces/IDatabaseService.cs"
-namespace BlazorApp.Interfaces;
-
-using BlazorApp.Models;
-
-public interface IDatabaseService
-{
-  Task<List<Player>> GetPlayers();
-  Task<Player?> GetUniquePlayer(int Id);
-  Task<int> AddPlayer(Player player);
-  Task<int> WithdrawMoney(Player player, int amount);
-  Task<List<Spaceship>> GetSpaceships(String userId);
-  Task<int> AddSpaceship(Spaceship spaceship);
-  Task<Boolean> SellSpaceship(Spaceship spaceship);
-}
-```
-
-It contains the bare minimum for having a functional app and should be implemented in our `DatabaseService` which you should create under `Services` resulting in this:
-
-```cs title="./Services/DatabaseService.cs"
 namespace BlazorApp.Services;
 
 using BlazorApp.Models;
@@ -114,7 +95,7 @@ public class DatabaseService : IDatabaseService
     {
       conn.Open();
 
-      String query = "INSERT INTO Spaceship(PlayerId, Name, Type, Speed, Capacity, ImageLink, InitialPrice) output INSERTED.Id VALUES(@PlayerId, @Name, @Type, @Speed, @Capacity, @ImageLink, @InitialPrice)";
+      String query = "INSERT INTO Spaceship(PlayerId, Name, Type, Speed, Capacity, ImageLink, Price) output INSERTED.Id VALUES(@PlayerId, @Name, @Type, @Speed, @Capacity, @ImageLink, @Price)";
 
       using (SqlCommand cmd = new SqlCommand(query, conn))
       {
@@ -124,7 +105,7 @@ public class DatabaseService : IDatabaseService
         cmd.Parameters.AddWithValue("@Speed", spaceship.Speed);
         cmd.Parameters.AddWithValue("@Capacity", spaceship.Capacity);
         cmd.Parameters.AddWithValue("@ImageLink", spaceship.ImageLink);
-        cmd.Parameters.AddWithValue("@InitialPrice", spaceship.Price);
+        cmd.Parameters.AddWithValue("@Price", spaceship.Price);
 
         var result = await cmd.ExecuteScalarAsync();
         if (result != null) spaceshipId = (int)result;
@@ -246,7 +227,7 @@ public class DatabaseService : IDatabaseService
             if (dr["Type"] != null) tempSpaceship.Type = dr.GetString(3);
             if (dr["Speed"] != null) tempSpaceship.Speed = dr.GetInt32(4);
             if (dr["Capacity"] != null) tempSpaceship.Capacity = dr.GetInt32(7);
-            if (dr["InitialPrice"] != null) tempSpaceship.Price = dr.GetInt32(9);
+            if (dr["Price"] != null) tempSpaceship.Price = dr.GetInt32(9);
             if (dr["ImageLink"] != null) tempSpaceship.ImageLink = dr.GetString(10);
 
             spaceships.Add(tempSpaceship);
