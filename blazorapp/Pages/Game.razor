@@ -1,0 +1,167 @@
+@page "/game/{PlayerId:int}"
+@using BlazorApp.Models
+@inject NavigationManager Navigation
+@inject Interfaces.IDatabaseService databaseService
+
+
+<style>
+  .container {
+    height: 100vh;
+    width: 100vw;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 1rem;
+    background-image: url(https://wallpapercave.com/wp/aZKICPt.jpg);
+    background-size: cover;
+    margin: 0;
+    color: white;
+    padding: 2rem;
+  }
+
+  .user-chip {
+    border-radius: 20px;
+    background-color: greenyellow;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+    align-items: center;
+    padding: .5rem;
+    color: black;
+  }
+
+  .header {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    max-width: 660px;
+    margin-bottom: 3rem;
+    gap: 1rem;
+  }
+
+  .buy-button {
+    border-color: yellow;
+    background-color: transparent;
+    border-radius: 10px;
+    color: yellow;
+  }
+
+  .game {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .inventory-header {
+    color: yellow;
+    text-align: center;
+  }
+
+  .divider {
+    width: 100%;
+    height: 1px;
+    background-color: yellow;
+  }
+
+  .card {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    border-radius: 10px;
+    border-width: 1px;
+    border-color: turquoise;
+    overflow: hidden;
+    background-color: transparent;
+  }
+
+  .image {
+    height: 200px;
+    width: 50%;
+  }
+
+  .card-content {
+    display: flex;
+    flex-direction: column;
+    width: 50%;
+    justify-content: space-evenly;
+    align-items: center;
+  }
+  
+  .mission-button {
+    border-color: yellowgreen;
+    border-radius: 10px;
+    background-color: transparent;
+    color: white;
+  }
+
+  .mission-button:hover {
+    background-color: yellowgreen;
+  }
+</style>
+
+<div class="container">
+  <div class="header">
+    <h1>Spaceports</h1>
+    @if (player != null)
+    {
+      <div class="user-chip">
+        <h5 style="margin:0;">@player.Name - @player.Balance $</h5>
+      </div>
+    }
+  </div>
+  <div class="game">
+    <button @onclick="@HandleShopClicked" class="buy-button">
+      Kjøp nytt romskip
+    </button>
+    <div class="inventory-header">
+      <h6>Dine romskip</h6>
+    </div>
+    <div class="divider" />
+    @foreach (Spaceship spaceship in spaceships)
+    {
+      <div class="card">
+        <img class="image" src="@spaceship.ImageLink" />
+        <div class="card-content">
+          <h6>@spaceship.Name</h6>
+          <button class="mission-button">Send på oppdrag</button>
+        </div>
+      </div>
+    }
+
+  </div>
+</div>
+
+@code {
+  [Parameter]
+  public int PlayerId { get; set; }
+  
+  Player player { get; set; } = new Player();
+  List<Spaceship> spaceships = new List<Spaceship>();
+
+  protected override async Task OnInitializedAsync()
+  {
+    await GetPlayer();
+    await GetSpaceships();
+  }
+
+  private async Task GetPlayer()
+  {
+    player = await databaseService.GetUniquePlayer(PlayerId);
+    Console.WriteLine(player);
+  }
+
+  private async Task GetSpaceships()
+  {
+    spaceships = await databaseService.GetSpaceships(PlayerId.ToString());
+    Console.WriteLine(spaceships);
+  }
+
+  private void HandleShopClicked()
+  {
+    Navigation.NavigateTo("/game/" + this.PlayerId + "/shop");
+  }
+}
