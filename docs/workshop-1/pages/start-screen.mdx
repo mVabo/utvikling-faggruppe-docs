@@ -1,0 +1,180 @@
+---
+sidebar_position: 2
+---
+
+# Start Screen
+
+This guide will show you how to make a basic start screen.
+
+The start screen should contain the following functionality:
+
+- [ ] Players should be able to start a new game
+- [ ] Players should be able to view and continue previous started games
+
+## Setup
+
+First we need to create the files we need.
+
+- `Start.razor` or `Initialize.razor` (this can be whatever, but in our example we use initialize)
+- For functionality we need both services:
+  - database-service
+  - solar-system-service
+
+:::tip Priorities
+
+It can be nice to make the HTML and CSS first so you have an interface to test your services with
+
+:::
+
+## Initialize.razor
+
+:::warning Final solution
+
+This file is from the final solution and should only be used as an aid if you're stuck
+
+:::
+
+```razor title="./Pages/Initialize.cs"
+@page "/initialize"
+
+@using BlazorApp.Models
+
+@inject Interfaces.IDatabaseService databaseService
+@inject Services.SolarSystemService solarSystemService
+@inject NavigationManager Navigation
+
+<style>
+  body {
+    padding: 0;
+    margin: 0;
+    width: 100vw;
+    height: 100vh;
+  }
+
+  .container {
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    padding: 2rem;
+    margin: 0;
+    background-image: url(https://wallpapercave.com/wp/aZKICPt.jpg);
+    background-size: cover;
+    color: white;
+  }
+
+  button {
+    padding: .5rem;
+    border-radius: 5px;
+    border-color: greenyellow;
+    background-color: transparent;
+    box-shadow: none;
+    color: inherit;
+  }
+
+  .form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    justify-content: flex-start;
+    align-items: center;
+  }
+
+  .playerlist {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+  }
+</style>
+
+<PageTitle>Start Spaceship</PageTitle>
+
+<div class="container">
+  <h1>Spaceports</h1>
+  @if (registrationActive)
+  {
+    <form @onsubmit="@InitializePlayer" class="form">
+      @foreach (Planet planet in solarSystemService.planets)
+      {
+        <div class="planet-card">
+          <h5>@planet.Name</h5>
+          <p>@planet.Description</p>
+        </div>
+      }
+      <input @bind-value="name" name="name" style="width: 100%" placeholder="Enter your name here" />
+      <select @bind="@homePlanet" style="width: 100%">
+        <option value="Tycho station">Tycho station</option>
+        <option value="Void city">Void city</option>
+        <option value="Ceres spaceport">Ceres spaceport</option>
+        <option value="Phoebe depot">Phoebe depot</option>
+        <option value="Latona platform">Latona platform</option>
+      </select>
+      <button type="submit" style="width: 100%">
+        Start
+      </button>
+      <button @onclick="@ToggleRegistration" style="width: 100%">
+        Go back
+      </button>
+    </form>
+  }
+  else
+  {
+    <div class="playerlist">
+      @foreach (Player player in @players)
+      {
+        <button @onclick="@(e => HandlePlayerClicked(player.ID))">
+          @player.Name
+        </button>
+      }
+      <button @onclick="@ToggleRegistration">
+        New game
+      </button>
+    </div>
+  }
+  <div>
+    <p style="text-align: center;">Development team:</p>
+    <p style="text-align: center;">Mættis</p>
+  </div>
+</div>
+
+@code {
+  public List<Player> players = new List<Player>();
+  Boolean registrationActive = false;
+  public String? name { get; set; }
+  public String? homePlanet { get; set; }
+
+  protected override async Task OnInitializedAsync()
+  {
+    await GetPlayers();
+  }
+
+  private async Task GetPlayers()
+  {
+    players = await databaseService.GetPlayers();
+  }
+
+  private void HandlePlayerClicked(int ID)
+  {
+    Navigation.NavigateTo("/game/" + ID.ToString());
+  }
+
+  protected void ToggleRegistration()
+  {
+    registrationActive = !registrationActive;
+  }
+
+  private async Task InitializePlayer()
+  {
+    Player player = new Player();
+    player.Name = this.name;
+    player.HomePlanet = this.homePlanet;
+
+    int playerId = await databaseService.AddPlayer(player);
+    Navigation.NavigateTo("/game/" + playerId.ToString());
+  }
+}
+```
