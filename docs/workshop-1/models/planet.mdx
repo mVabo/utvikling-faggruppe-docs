@@ -1,0 +1,42 @@
+---
+sidebar_position: 3
+---
+
+# Planet
+
+`./Models/Planet.cs`
+
+The planet class should define all the properties a player can have and contain a constructor
+
+## Basics
+
+In this workshop you need to get creative and a good way is to add your own properties, but here is an example from our template
+
+:::tip Visuals
+
+This class needs an image property for later use
+
+:::
+
+```cs title="./Models/Planet.cs"
+using System.ComponentModel.DataAnnotations;
+
+namespace BlazorApp.Models;
+
+public class Planet
+{
+  public int ID { get; set; }
+
+  [Required]
+  public string Name { get; set; }
+
+  [Required]
+  public string Description { get; set; }
+
+  public Planet(String Name, String Description)
+  {
+    this.Name = Name;
+    this.Description = Description;
+  }
+}
+```

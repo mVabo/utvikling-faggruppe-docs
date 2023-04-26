@@ -1,0 +1,126 @@
+---
+sidebar_position: 1
+---
+
+# Basics
+
+Before we jump in and try to create our whole game, its nice to know the basics of Razor components/pages
+
+## File placement and conventions
+
+### Placement
+
+For our purpose, we should keep all of our pages/componets within the `./Pages` folder, but normally it would be
+standard practice to also have a `./Components` folder
+
+### Conventions
+
+Pages follows basic .NET naming conventions and should be camel-case and start with a capital letter like `StartExample`. The name should be followed by the `.razor`
+extension and the result should be: `StartExample.razor`
+
+## Page vs Component
+
+In the razor component you have to declare it as a page in the top for it to be mapped. By declaring a component with `@page "/start"`
+
+## Structure
+
+In the right order:
+
+1. Declarations
+2. Styling
+3. HTML
+4. Code/functions
+
+## Declarations
+
+### Using
+
+If we want to use models or services in our code, we need to delcare that we're using a given namespace with the following line:
+
+_This example declares that we want to use everything within our Models folder/namespace_
+
+```razor
+@using BlazorApp.Models
+```
+
+### Inject
+
+When we want to use services like our database-service we need to inject it into our component.
+
+_This example declares that we want to use the Services folder/namespace and injects the service into our code_
+
+```razor
+@using BlazorApp.Services
+@inject DatabaseService databaseService
+```
+
+## Styling
+
+After we have our declarations in order, we can add style tags that will contain or styling later on
+
+Style tags looks like this
+
+```razor
+<style>
+  .styling-goes-here {}
+</style>
+```
+
+- [CSS Docs](https://developer.mozilla.org/en-US/docs/Learn/Getting_started_with_the_web/CSS_basics)
+- [CSS Guides](https://www.w3schools.com/css/default.asp)
+
+## HTML
+
+HTML can be put everywhere in the file, but to keep a nice structure that provides structure we place it between the styling and the code/functions.
+Best practice is to wrap the code in an element so its all controllable later on, like this
+
+```razor
+<div>
+  <restOfYourCodeHere>
+    <andHere />
+  </restOfYourCodeHere>
+</div>
+```
+
+- [HTML Docs](https://developer.mozilla.org/en-US/docs/Web/HTML)
+- [HTML Guides](https://www.w3schools.com/html/default.asp)
+
+## Code/Functions
+
+Inside the code declaration we can store functions and variables, here is what it looks like:
+
+```razor
+@code {
+  String name = "";
+
+  private async Task DoSomething()
+  {
+    // Do something
+  }
+}
+```
+
+- [Razor syntax](https://learn.microsoft.com/en-us/aspnet/core/mvc/views/razor?view=aspnetcore-7.0)
+
+## Complete example
+
+```razor
+@page "/"
+
+<style>
+  .container {
+    color: black
+  }
+</style>
+
+<div class="continaer" @onclick="@HandleClick">
+  <p>Hello world</p>
+</div>
+
+@code {
+  public void HandleClick()
+  {
+    Console.WriteLine("Hello World");
+  }
+}
+```

@@ -1,0 +1,145 @@
+---
+sidebar_position: 2
+---
+
+# Folders and structure
+
+In this workshop we will use a standard folder structure that follows Microsoft guidelines.
+
+## Starting point
+
+When initializing the project it should look like this:
+
+```folder
+- bin
+- Data
+  - WeatherForecast.cs
+  - WeatherForecastService.cs
+- obj (We shouldn't touch this)
+- Pages
+  - \_Host.cshtml
+  - Counter.razor
+  - Error.cshtml
+  - Error.cshtml.cs
+  - FetchData.razor
+  - Index.razor
+- Properties
+  - launchSettings.json
+- Shared
+  - MainLayout.razor
+  - MainLayout.razor.css
+  - NavMenu.razor
+  - NavMenu.razor.css
+  - SurveyPrompt.razor
+- wwwroot (We shouldn't touch this)
+- \_Imports.razor
+- App.razor
+- appsettings.Development.json
+- appsettings.json
+- Program.cs
+- Test.csproj
+```
+
+## Removing bloat
+
+### Layout
+
+Since we only need ~3 pages max, we don't want to spend time and add complexity by making layouts,
+for this reason, we're going to delete the layouts that comes with the template
+
+1. First you need to remove all files within the `Shared` folder, but keep the folder.
+
+2. You should get a couple errors now, to remove them head over to `App.razor` and delete all references like this:
+
+Before:
+
+```cs
+<Router AppAssembly="@typeof(App).Assembly">
+    <Found Context="routeData">
+        <RouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)" />
+        <FocusOnNavigate RouteData="@routeData" Selector="h1" />
+    </Found>
+    <NotFound>
+        <PageTitle>Not found</PageTitle>
+        <LayoutView Layout="@typeof(MainLayout)">
+            <p role="alert">Sorry, there's nothing at this address.</p>
+        </LayoutView>
+    </NotFound>
+</Router>
+```
+
+After:
+
+```cs
+<Router AppAssembly="@typeof(App).Assembly">
+    <Found Context="routeData">
+        <RouteView RouteData="@routeData" />
+        <FocusOnNavigate RouteData="@routeData" Selector="h1" />
+    </Found>
+    <NotFound>
+        <PageTitle>Not found</PageTitle>
+        <LayoutView>
+            <p role="alert">Sorry, there's nothing at this address.</p>
+        </LayoutView>
+    </NotFound>
+</Router>
+```
+
+3. Since the `Shared` folder is empty, we need to remove the import in `_Imports.razor`.
+
+- Just delete the line `@using BlazorApp.Shared`
+
+### Data
+
+We wont need any of the contents in the `Data` folder, so you can go ahead and delete this entirely.
+
+1. Like we did with `Layout`, we need to remove all references from the `Program.cs` file, the following lines should be deleted:
+
+```cs
+using BlazorApp.Data;
+```
+
+```cs
+builder.Services.AddSingleton<WeatherForecastService>();
+```
+
+## Adding folders that we're going to use
+
+:::tip Be aware
+
+When executing the commands, be sure you're in the project folder in your terminal
+
+:::
+
+### Services
+
+The services folder will be holding all of our service related files, like our database-service.
+
+```bash
+~$ mkdir Layouts
+```
+
+### Models
+
+The models folder will be holding all of our models, like player and spaceship.
+
+```bash
+~$ mkdir Models
+```
+
+### Interfaces
+
+The interfaces folder will be holding all of our interfaces.
+
+```bash
+~$ mkdir Interfaces
+```
+
+### Migrations _(optional)_
+
+You could also add a migrations folder for keeping all of your SQL migration files, its a nice touch
+and makes it easier to keep track of all the changes you've made.
+
+```bash
+~$ mkdir Migrations
+```

@@ -1,0 +1,34 @@
+---
+sidebar_position: 1
+---
+
+# Basics
+
+Interfaces are used as contracts when creating a class or struct that must provide a given implementation.
+
+In this workshop it is a bit overkill and will only be used as an example.
+
+## IDatabaseService
+
+Go ahead and create the file `IDatabaseService.cs` inside `./Interfaces`.
+
+When you're done you can copy-paste the following into your file:
+
+```cs title="./Interfaces/IDatabaseService.cs"
+namespace BlazorApp.Interfaces;
+
+using BlazorApp.Models;
+
+public interface IDatabaseService
+{
+  Task<List<Player>> GetPlayers();
+  Task<Player?> GetUniquePlayer(int Id);
+  Task<int> AddPlayer(Player player);
+  Task<int> WithdrawMoney(Player player, int amount);
+  Task<List<Spaceship>> GetSpaceships(String userId);
+  Task<int> AddSpaceship(Spaceship spaceship);
+  Task<Boolean> SellSpaceship(Spaceship spaceship);
+}
+```
+
+It contains the bare minimum for having a functional app and should be implemented in our `DatabaseService` which will be created later on.
