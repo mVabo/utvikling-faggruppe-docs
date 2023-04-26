@@ -1,0 +1,36 @@
+---
+sidebar_position: 2
+---
+
+# Branching
+
+Branching is an important strategy when working in teams. It lets the team work on separate "branches" of the
+main codebase and later on lets everyone merge their code safely into the codebase.
+
+## Naming conventions
+
+### By Type
+
+This convetion is based on the type, which can be one of the following
+
+- Feature
+- Bug
+- Improvement
+
+- Any other the team decides to include
+
+So a branch with this convention could be `feature/new-landingpage`
+
+### By Person
+
+This convention is based by the person pushing the code. So a branch with this convention would be named `aadne-garstad/new-landingpage`
+
+## Creating a new branch
+
+Use the following command to create a new branch
+
+```bash
+~$ git branch -b "feature/feature-name"
+```
+
+Now you can push and fetch code like normally and create a PR when you're ready to merge your code with the main codebase
