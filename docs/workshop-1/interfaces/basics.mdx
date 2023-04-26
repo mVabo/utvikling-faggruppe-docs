@@ -37,9 +37,240 @@ It contains the bare minimum for having a functional app and should be implement
 namespace BlazorApp.Services;
 
 using BlazorApp.Models;
+using BlazorApp.Interfaces;
+using Microsoft.Data.SqlClient;
 
 public class DatabaseService : IDatabaseService
 {
+  private string databaseConnectionString = "";
+  private readonly IConfiguration configuration;
 
+  public DatabaseService(IConfiguration configuration)
+  {
+    this.configuration = configuration;
+    this.databaseConnectionString = configuration.GetConnectionString("connectionString");
+  }
+
+  public async Task<int> AddPlayer(Player player)
+  {
+    DateTime createdAt = giveNorwegianDateTimeNow();
+
+    int playerId = 0;
+
+    using (SqlConnection conn = new SqlConnection(this.databaseConnectionString))
+    {
+      conn.Open();
+
+      String query = "INSERT INTO Player(Name, Balance, HomePlanet, Created) output INSERTED.Id VALUES(@Name, @Balance, @HomePlanet, @Created)";
+
+      using (SqlCommand cmd = new SqlCommand(query, conn))
+      {
+        cmd.Parameters.AddWithValue("@Name", player.Name);
+        cmd.Parameters.AddWithValue("@Balance", player.Balance);
+        cmd.Parameters.AddWithValue("@HomePlanet", player.HomePlanet);
+        cmd.Parameters.AddWithValue("@Created", createdAt);
+
+        var result = await cmd.ExecuteScalarAsync();
+        if (result != null) playerId = (int)result;
+      }
+
+      conn.Close();
+    }
+
+    return playerId;
+  }
+
+  public async Task<int> WithdrawMoney(Player player, int amount)
+  {
+    int balance = player.Balance;
+
+    if (player.Balance >= amount)
+    {
+      using (SqlConnection conn = new SqlConnection(this.databaseConnectionString))
+      {
+        conn.Open();
+
+        String query = "UPDATE Player SET Balance=@Balance output INSERTED.Balance WHERE Id=@Id";
+
+        using (SqlCommand cmd = new SqlCommand(query, conn))
+        {
+          cmd.Parameters.AddWithValue("Balance", player.Balance - amount);
+          cmd.Parameters.AddWithValue("@Id", player.ID);
+
+          var result = await cmd.ExecuteScalarAsync();
+          if (result != null) balance = (int)result;
+        }
+      }
+    }
+
+    return balance;
+  }
+
+  public async Task<int> AddSpaceship(Spaceship spaceship)
+  {
+    int spaceshipId = 0;
+
+    using (SqlConnection conn = new SqlConnection(this.databaseConnectionString))
+    {
+      conn.Open();
+
+      String query = "INSERT INTO Spaceship(PlayerId, Name, Type, Speed, Capacity, ImageLink, InitialPrice) output INSERTED.Id VALUES(@PlayerId, @Name, @Type, @Speed, @Capacity, @ImageLink, @InitialPrice)";
+
+      using (SqlCommand cmd = new SqlCommand(query, conn))
+      {
+        cmd.Parameters.AddWithValue("@PlayerId", spaceship.PlayerId);
+        cmd.Parameters.AddWithValue("@Name", spaceship.Name);
+        cmd.Parameters.AddWithValue("@Type", spaceship.Type);
+        cmd.Parameters.AddWithValue("@Speed", spaceship.Speed);
+        cmd.Parameters.AddWithValue("@Capacity", spaceship.Capacity);
+        cmd.Parameters.AddWithValue("@ImageLink", spaceship.ImageLink);
+        cmd.Parameters.AddWithValue("@InitialPrice", spaceship.Price);
+
+        var result = await cmd.ExecuteScalarAsync();
+        if (result != null) spaceshipId = (int)result;
+      }
+    }
+
+    return spaceshipId;
+  }
+
+  public async Task<Player?> GetUniquePlayer(int Id)
+  {
+    Player? player = null;
+
+    using (SqlConnection conn = new SqlConnection(this.databaseConnectionString))
+    {
+      conn.Open();
+
+      String query = "SELECT * FROM Player WHERE id = @Id";
+
+      using (SqlCommand cmd = new SqlCommand(query, conn))
+      {
+        cmd.Parameters.AddWithValue("@Id", Id);
+
+        SqlDataReader dataRead = await cmd.ExecuteReaderAsync();
+
+        if (dataRead.HasRows)
+        {
+          while (dataRead.Read())
+          {
+            Player tempPlayer = new Player();
+
+            if (dataRead["ID"] != null) tempPlayer.ID = dataRead.GetInt32(0);
+            if (dataRead["Name"] != null) tempPlayer.Name = dataRead.GetString(1);
+            if (dataRead["Balance"] != null) tempPlayer.Balance = dataRead.GetInt32(2);
+            if (dataRead["HomePlanet"] != null) tempPlayer.HomePlanet = dataRead.GetString(3);
+            if (dataRead["Created"] != null) tempPlayer.Created = dataRead.GetDateTime(4);
+
+            if (tempPlayer.Name != "") player = tempPlayer;
+          }
+        }
+      }
+    }
+
+    return player;
+  }
+
+  public async Task<List<Player>> GetPlayers()
+  {
+    List<Player> players = new List<Player>();
+
+    using (SqlConnection conn = new SqlConnection(this.databaseConnectionString))
+    {
+      conn.Open();
+
+      String query = "SELECT * FROM Player";
+
+      SqlCommand cmd = new SqlCommand(query, conn);
+
+      try
+      {
+        SqlDataReader dataRead = await cmd.ExecuteReaderAsync();
+
+        if (dataRead.HasRows)
+        {
+          while (dataRead.Read())
+          {
+            Player tempPlayer = new Player();
+
+            if (dataRead["ID"] != null) tempPlayer.ID = dataRead.GetInt32(0);
+            if (dataRead["Name"] != null) tempPlayer.Name = dataRead.GetString(1);
+            if (dataRead["Balance"] != null) tempPlayer.Balance = dataRead.GetInt32(2);
+            if (dataRead["HomePlanet"] != null) tempPlayer.HomePlanet = dataRead.GetString(3);
+            if (dataRead["Created"] != null) tempPlayer.Created = dataRead.GetDateTime(4);
+
+            players.Add(tempPlayer);
+          }
+        }
+        else
+        {
+          Console.WriteLine("No player rows");
+        }
+      }
+      catch (System.Exception e)
+      {
+        Console.WriteLine(e.StackTrace);
+        throw;
+      }
+    }
+
+    return players;
+  }
+
+  public async Task<List<Spaceship>> GetSpaceships(String playerId)
+  {
+    List<Spaceship> spaceships = new List<Spaceship>();
+
+    using (SqlConnection conn = new SqlConnection(this.databaseConnectionString))
+    {
+      conn.Open();
+
+      String query = "SELECT * FROM Spaceship WHERE PlayerId=@playerId";
+      SqlCommand cmd = new SqlCommand(query, conn);
+
+      cmd.Parameters.AddWithValue("@playerId", playerId);
+
+      try
+      {
+        SqlDataReader dr = await cmd.ExecuteReaderAsync();
+
+        if (dr.HasRows)
+        {
+          while (dr.Read())
+          {
+            Spaceship tempSpaceship = new Spaceship();
+
+            if (dr["Id"] != null) tempSpaceship.ID = dr.GetInt32(0);
+            if (dr["PlayerId"] != null) tempSpaceship.PlayerId = dr.GetInt32(1);
+            if (dr["Name"] != null) tempSpaceship.Name = dr.GetString(2);
+            if (dr["Type"] != null) tempSpaceship.Type = dr.GetString(3);
+            if (dr["Speed"] != null) tempSpaceship.Speed = dr.GetInt32(4);
+            if (dr["Capacity"] != null) tempSpaceship.Capacity = dr.GetInt32(7);
+            if (dr["InitialPrice"] != null) tempSpaceship.Price = dr.GetInt32(9);
+            if (dr["ImageLink"] != null) tempSpaceship.ImageLink = dr.GetString(10);
+
+            spaceships.Add(tempSpaceship);
+          }
+        }
+      }
+      catch (System.Exception e)
+      {
+        Console.WriteLine(e);
+        throw;
+      }
+    }
+
+    return spaceships;
+  }
+
+  public DateTime giveNorwegianDateTimeNow()
+  {
+    return TimeZoneInfo.ConvertTime(DateTime.Now.ToUniversalTime(), TimeZoneInfo.FindSystemTimeZoneById("W. Europe Standard Time")); // +01.00. Skal gi riktig sommer/vintertid OG klare seg gjennom daylight saving transition 2 ganger i året
+  }
+
+  public Task<bool> SellSpaceship(Spaceship spaceship)
+  {
+    throw new NotImplementedException();
+  }
 }
 ```
