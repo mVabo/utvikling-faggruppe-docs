@@ -78,7 +78,7 @@ public class DatabaseService : IDatabaseService
     {
       conn.Open();
 
-      String query = "INSERT INTO Spaceship(PlayerId, Name, Type, Speed, Capacity, ImageLink, InitialPrice) output INSERTED.Id VALUES(@PlayerId, @Name, @Type, @Speed, @Capacity, @ImageLink, @InitialPrice)";
+      String query = "INSERT INTO Spaceship(PlayerId, Name, Type, Speed, Capacity, ImageLink, InitialPrice, Status, CurrentPort) output INSERTED.Id VALUES(@PlayerId, @Name, @Type, @Speed, @Capacity, @ImageLink, @InitialPrice, @Status, @CurrentPort)";
 
       using (SqlCommand cmd = new SqlCommand(query, conn))
       {
@@ -89,6 +89,8 @@ public class DatabaseService : IDatabaseService
         cmd.Parameters.AddWithValue("@Capacity", spaceship.Capacity);
         cmd.Parameters.AddWithValue("@ImageLink", spaceship.ImageLink);
         cmd.Parameters.AddWithValue("@InitialPrice", spaceship.Price);
+        cmd.Parameters.AddWithValue("@CurrentPort", spaceship.CurrentPort);
+        cmd.Parameters.AddWithValue("@Status", "ready");
 
         var result = await cmd.ExecuteScalarAsync();
         if (result != null) spaceshipId = (int)result;
@@ -209,9 +211,11 @@ public class DatabaseService : IDatabaseService
             if (dr["Name"] != null) tempSpaceship.Name = dr.GetString(2);
             if (dr["Type"] != null) tempSpaceship.Type = dr.GetString(3);
             if (dr["Speed"] != null) tempSpaceship.Speed = dr.GetInt32(4);
+            if (dr["Status"] != null) tempSpaceship.Status = dr.GetString(11);
             if (dr["Capacity"] != null) tempSpaceship.Capacity = dr.GetInt32(7);
             if (dr["InitialPrice"] != null) tempSpaceship.Price = dr.GetInt32(9);
             if (dr["ImageLink"] != null) tempSpaceship.ImageLink = dr.GetString(10);
+            if (dr["CurrentPort"] != null) tempSpaceship.CurrentPort = dr.GetString(14);
 
             spaceships.Add(tempSpaceship);
           }

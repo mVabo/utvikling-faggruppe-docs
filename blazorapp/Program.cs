@@ -8,6 +8,8 @@ builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 builder.Services.AddSingleton<IDatabaseService, DatabaseService>();
 builder.Services.AddSingleton<SolarSystemService>();
+builder.Services.AddSingleton<MissionService>();
+builder.Services.AddSingleton<ServiceBusService>();
 
 var app = builder.Build();
 

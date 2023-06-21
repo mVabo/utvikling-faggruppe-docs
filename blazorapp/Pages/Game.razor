@@ -1,8 +1,10 @@
 @page "/game/{PlayerId:int}"
 @using BlazorApp.Models
+@using System.Text.Json;
 @inject NavigationManager Navigation
 @inject Interfaces.IDatabaseService databaseService
-
+@inject Services.MissionService missionService
+@inject Services.ServiceBusService serviceBus
 
 <style>
   .container {
@@ -89,6 +91,7 @@
     width: 50%;
     justify-content: space-evenly;
     align-items: center;
+    gap: 1rem;
   }
   
   .mission-button {
@@ -100,6 +103,63 @@
 
   .mission-button:hover {
     background-color: yellowgreen;
+  }
+
+  .modal {
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, .4);
+    position: absolute;
+    z-index: 10;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .modal-overlay {
+    background-color: rgba(255, 255, 255, .8);
+    border-radius: 16px;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: stretch;
+    max-width: 72rem;
+    z-index: 20;
+    gap: 1rem;
+  }
+
+  .mission-row {
+    display: flex;
+    flex-direction: row;
+    opacity: 1;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    border: 1px solid turquoise;
+    background-color: white;
+    border-radius: 8px;
+    color: black;
+    min-width: 24rem;
+  }
+
+  .status-text {
+    border-radius: 10px;
+    border: 1px solid yellowgreen;
+    padding: 2px 8px;
+    background-color: transparent;
+  }
+
+  .mission-row:hover {
+    opacity: .5;
+    cursor: pointer;
+  }
+
+  .info-column {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
   }
 </style>
 
@@ -123,21 +183,91 @@
     <div class="divider" />
     @foreach (Spaceship spaceship in spaceships)
     {
-      <div class="card">
+      <div class="card" @onclick="(() => OpenMissionSelector(spaceship))">
         <img class="image" src="@spaceship.ImageLink" />
         <div class="card-content">
           <h6>@spaceship.Name</h6>
-          <button class="mission-button">Send på oppdrag</button>
+          <div class="card-column">
+            @if (spaceship.Status == "docked")
+            {
+              <button class="mission-button">Send på oppdrag</button>
+            }
+            else
+            {
+              <button class="mission-button">Cash inn oppdrag</button>
+            }
+            
+            <button class="mission-button">Reparer - 60000 $</button>
+          </div>
+          @if (spaceship.Status == "docked")
+          {
+            <p class="status-text">🛰️ Docked</p>
+          }
+          @if (spaceship.Status == "on_mission")
+          {
+            <p>🚀 On mission</p>
+          }
+          @if (spaceship.Status == "complete")
+          {
+            <p>💵 Docked</p>
+          }
         </div>
+
       </div>
     }
-
   </div>
+  @if (MissionSelectorOpen) {
+    <div class="modal" @onclick="@Close">
+      <div class="modal-overlay">
+        <h4 style="color: black;">@SelectedSpaceship.Name - @SelectedSpaceship.CurrentPort</h4>
+        @foreach (Mission mission in Missions)
+        {
+          <div class="mission-row" @onclick="(() => StartMission(mission))">
+            <div class="info-column">
+              <p>@mission.destinationPlanet.Name</p>
+              <p style="opacity: .6;">@mission.goods.name</p>
+            </div>
+            <div class="info-column">
+              <p>@mission.missionTotalValue $</p>
+              <p>@mission.missionTime min</p>
+            </div>
+            <h6 style="text-align: center">Start</h6>
+          </div>
+        }
+      </div>
+    </div>
+  }
 </div>
 
 @code {
   [Parameter]
   public int PlayerId { get; set; }
+
+  public Boolean MissionSelectorOpen { get; set; } = false;
+  public Spaceship SelectedSpaceship { get; set; }
+  public List<Mission> Missions { get; set; } = new List<Mission>();
+
+  private void Close()
+  {
+    MissionSelectorOpen = false;
+  }
+
+  private void GetMissions() {
+    if (SelectedSpaceship == null) return;
+    Missions = missionService.GiveListOfPossibleMissions(SelectedSpaceship);
+  }
+
+  private void OpenMissionSelector(Spaceship spaceship)
+  {
+    SelectedSpaceship = spaceship;
+    MissionSelectorOpen = true;
+    GetMissions();
+  }
+
+  private async Task StartMission(Mission _mission)
+  {
+    await serviceBus.SendMissionToBus(JsonSerializer.Serialize(_mission));
+  }
   
   Player player { get; set; } = new Player();
   List<Spaceship> spaceships = new List<Spaceship>();
@@ -148,16 +278,19 @@
     await GetSpaceships();
   }
 
+  private async Task RepairSpaceship(Spaceship _spaceship)
+  {
+
+  }
+
   private async Task GetPlayer()
   {
     player = await databaseService.GetUniquePlayer(PlayerId);
-    Console.WriteLine(player);
   }
 
   private async Task GetSpaceships()
   {
     spaceships = await databaseService.GetSpaceships(PlayerId.ToString());
-    Console.WriteLine(spaceships);
   }
 
   private void HandleShopClicked()

@@ -225,6 +225,7 @@
     }
 
     selectedShip.Name = name;
+    selectedShip.CurrentPort = player.HomePlanet;
     int id = await databaseService.AddSpaceship(selectedShip);
     if (id != 0) Navigation.NavigateTo("/game/" + PlayerId.ToString());
   }

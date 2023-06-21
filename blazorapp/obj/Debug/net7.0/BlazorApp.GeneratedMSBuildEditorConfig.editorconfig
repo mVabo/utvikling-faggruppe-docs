@@ -15,39 +15,3 @@ build_property.SupportLocalizedComponentNames =
 build_property.GenerateRazorMetadataSourceChecksumAttributes = 
 build_property.MSBuildProjectDirectory = /Users/vabo/Documents/utvikling-faggruppe/utvikling-faggruppe/blazorapp
 build_property._RazorSourceGeneratorDebug = 
-
-[/Users/vabo/Documents/utvikling-faggruppe/utvikling-faggruppe/blazorapp/App.razor]
-build_metadata.AdditionalFiles.TargetPath = QXBwLnJhem9y
-build_metadata.AdditionalFiles.CssScope = 
-
-[/Users/vabo/Documents/utvikling-faggruppe/utvikling-faggruppe/blazorapp/Pages/Game.razor]
-build_metadata.AdditionalFiles.TargetPath = UGFnZXMvR2FtZS5yYXpvcg==
-build_metadata.AdditionalFiles.CssScope = 
-
-[/Users/vabo/Documents/utvikling-faggruppe/utvikling-faggruppe/blazorapp/Pages/Index.razor]
-build_metadata.AdditionalFiles.TargetPath = UGFnZXMvSW5kZXgucmF6b3I=
-build_metadata.AdditionalFiles.CssScope = 
-
-[/Users/vabo/Documents/utvikling-faggruppe/utvikling-faggruppe/blazorapp/Pages/Initialize.razor]
-build_metadata.AdditionalFiles.TargetPath = UGFnZXMvSW5pdGlhbGl6ZS5yYXpvcg==
-build_metadata.AdditionalFiles.CssScope = 
-
-[/Users/vabo/Documents/utvikling-faggruppe/utvikling-faggruppe/blazorapp/Pages/Shop.razor]
-build_metadata.AdditionalFiles.TargetPath = UGFnZXMvU2hvcC5yYXpvcg==
-build_metadata.AdditionalFiles.CssScope = 
-
-[/Users/vabo/Documents/utvikling-faggruppe/utvikling-faggruppe/blazorapp/Shared/RootLayout.razor]
-build_metadata.AdditionalFiles.TargetPath = U2hhcmVkL1Jvb3RMYXlvdXQucmF6b3I=
-build_metadata.AdditionalFiles.CssScope = 
-
-[/Users/vabo/Documents/utvikling-faggruppe/utvikling-faggruppe/blazorapp/_Imports.razor]
-build_metadata.AdditionalFiles.TargetPath = X0ltcG9ydHMucmF6b3I=
-build_metadata.AdditionalFiles.CssScope = 
-
-[/Users/vabo/Documents/utvikling-faggruppe/utvikling-faggruppe/blazorapp/Pages/Error.cshtml]
-build_metadata.AdditionalFiles.TargetPath = UGFnZXMvRXJyb3IuY3NodG1s
-build_metadata.AdditionalFiles.CssScope = 
-
-[/Users/vabo/Documents/utvikling-faggruppe/utvikling-faggruppe/blazorapp/Pages/_Host.cshtml]
-build_metadata.AdditionalFiles.TargetPath = UGFnZXMvX0hvc3QuY3NodG1s
-build_metadata.AdditionalFiles.CssScope = 
